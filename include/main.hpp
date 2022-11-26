@@ -18,11 +18,13 @@ namespace Wasureta {
         CustomLeaderboardManager();
         ~CustomLeaderboardManager();
 
-        static void OnLeaderboardsChange();
+        void OnLeaderboardsChanged();
 
         void Register(const ModInfo &modInfo = {MOD_ID, VERSION});
 
         void Unregister(const ModInfo &modInfo = {MOD_ID, VERSION});
+
+
     };
 
     class CustomLeaderboard {
@@ -34,6 +36,6 @@ namespace Wasureta {
     class INotifyCustomLeaderboardsChange {
     public:
         void OnLeaderboardsChanged(std::span<CustomLeaderboard *> orderedCustomLeaderboards,
-                                   std::unordered_map<std::string, CustomLeaderboard>);
+                                   std::unordered_map<std::string, CustomLeaderboard *> customLeaderboardsById);
     };
 }

@@ -1,12 +1,13 @@
 #include "main.hpp"
 #include "custom-types/shared/register.hpp"
-#include "logger.hpp"
+#include "logger.h"
 #include "hooking.h"
 
 #include "GlobalNamespace/PlatformLeaderboardViewController.hpp"
 #include "GlobalNamespace/IDifficultyBeatmap.hpp"
 #include <vector>
 #include <unordered_map>
+#include <fmt/format.h>
 
 static ModInfo modInfo; // Stores the ID and version of our mod, and is sent to the modloader upon startup
 
@@ -27,13 +28,18 @@ namespace Wasureta {
 
     CustomLeaderboardManager::~CustomLeaderboardManager() = default;
 
-    void CustomLeaderboardManager::OnLeaderboardsChange() {
-        // FIXME: make auto const& or auto& instead 
-        for (auto lb : _notifyCustomLeaderboardsChanges) {
-            INFO("Size of _notifyCustomLeaderboardsChanges vector: {}", _notifyCustomLeaderboardsChanges.capacity());
+    void CustomLeaderboardManager::OnLeaderboardsChanged() {
+
+        std::vector<CustomLeaderboard*> valueVec;
+        valueVec.reserve(_customLeaderboardsById.size());
+        for (const auto& [key, value] : _customLeaderboardsById) {
+            valueVec.emplace_back(value);
+        }
+
+        for (const auto& lb : _notifyCustomLeaderboardsChanges) {
             INFO("lb ptr: {}", fmt::ptr(lb));
-            lb->OnLeaderboardsChanged(_notifyCustomLeaderboardsChanges.get);
-        };
+            lb->OnLeaderboardsChanged(valueVec, _customLeaderboardsById);
+        }
     }
 
     void CustomLeaderboardManager::Register(const ModInfo &modInfo) {
@@ -49,6 +55,11 @@ namespace Wasureta {
     }
 
     void CustomLeaderboard::Hide() {
+
+    }
+
+    void INotifyCustomLeaderboardsChange::OnLeaderboardsChanged(std::span<CustomLeaderboard *> orderedCustomLeaderboards,
+                                                                std::unordered_map<std::string, CustomLeaderboard *> customLeaderboardsById) {
 
     }
 }
