@@ -1,6 +1,6 @@
 #include "main.hpp"
 #include "custom-types/shared/register.hpp"
-#include "logger.h"
+#include "logger.hpp"
 #include "hooking.h"
 
 #include "GlobalNamespace/PlatformLeaderboardViewController.hpp"
@@ -17,73 +17,40 @@ Configuration& getConfig() {
     return config;
 }
 
-// Returns a logger, useful for printing debug messages
-Logger& getLogger() {
-    static Logger* logger = new Logger(modInfo);
-    return *logger;
-}
-
-extern "C" void load();
 
 namespace Wasureta {
 
-    class CustomLeaderboard {
+    std::vector<Wasureta::INotifyCustomLeaderboardsChange *> _notifyCustomLeaderboardsChanges;
+    std::unordered_map<std::string, Wasureta::CustomLeaderboard *> _customLeaderboardsById;
 
-        CustomLeaderboard::CustomLeaderboard(const ModInfo& modInfo) : modInfo(modInfo) {
-            get_instance().Add(this);
-        }
+    CustomLeaderboardManager::CustomLeaderboardManager() = default;
 
+    CustomLeaderboardManager::~CustomLeaderboardManager() = default;
 
-    public:
-        Wasureta::CustomLeaderboard* Get(const ModInfo& modInfo = { MOD_ID, VERSION }) {
-            auto lbreg = new Wasureta::CustomLeaderboard(modInfo);
-            return lbreg;
-        }   
+    void CustomLeaderboardManager::OnLeaderboardsChange() {
+        // FIXME: make auto const& or auto& instead 
+        for (auto lb : _notifyCustomLeaderboardsChanges) {
+            INFO("Size of _notifyCustomLeaderboardsChanges vector: {}", _notifyCustomLeaderboardsChanges.capacity());
+            INFO("lb ptr: {}", fmt::ptr(lb));
+            lb->OnLeaderboardsChanged(_notifyCustomLeaderboardsChanges.get);
+        };
+    }
 
-        std::string pluginId;
-    };
+    void CustomLeaderboardManager::Register(const ModInfo &modInfo) {
 
-    class CustomLeaderboardManager {
+    }
 
-        static CustomLeaderboardManager instance;
-        std::set<Wasureta::CustomLeaderboard*> _customLeaderboards;
+    void CustomLeaderboardManager::Unregister(const ModInfo &modInfo) {
 
-        std::unordered_map<std::string, Wasureta::CustomLeaderboard> _customLeaderbordsById; 
-        
-        /// @brief Registers a Custom Leaderboard to the manager.
-        /// @param modInfo Your mod info, not required 
-        void Register(const ModInfo& modInfo = { MOD_ID, VERSION }) {
-            // TODO: Register the board, damn it
+    }
 
-            
-        }
+    void CustomLeaderboard::Show() {
 
-        /// @brief Removes a Custom Leaderboard from the manager.
-        /// @param customLeaderboard 
-        void Unregister(const ModInfo& modInfo = { MOD_ID, VERSION }) {
-            // TODO: Unregister the board, damn it
+    }
 
-            if (customLeaderboard->pluginId == null) {
+    void CustomLeaderboard::Hide() {
 
-            }
-        }
-
-        void Add(CustomLeaderboard* customLeaderboard) {
-            DEBUG("Registered Leaderboard for {} v{}.", customLeaderboard->modInfo.id, customLeaderboard->modInfo.version);
-            _customLeadeboards.emplace(customLeaderboard);
-        }
-
-    private:
-        void OnLeaderboardsChanged() {
-            for (auto notifyCustomLeaderboardsChange : _customLeaderboardById) {
-                notifyCustomLeaderboardsChange->OnLeaderboardsChanged(_customLeaderboardsById.Value);
-            }
-        }
-
-        CustomLeaderboardManager& CustomLeaderboardManager::get_instance() {
-            return instance;
-        }
-    };
+    }
 }
 
 

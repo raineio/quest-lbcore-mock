@@ -12,3 +12,28 @@
 
 // Define these functions here so that we can easily read configuration and log information from other files
 Configuration& getConfig();
+
+namespace Wasureta {
+    class CustomLeaderboardManager {
+        CustomLeaderboardManager();
+        ~CustomLeaderboardManager();
+
+        static void OnLeaderboardsChange();
+
+        void Register(const ModInfo &modInfo = {MOD_ID, VERSION});
+
+        void Unregister(const ModInfo &modInfo = {MOD_ID, VERSION});
+    };
+
+    class CustomLeaderboard {
+        void Show();
+
+        void Hide();
+    };
+
+    class INotifyCustomLeaderboardsChange {
+    public:
+        void OnLeaderboardsChanged(std::span<CustomLeaderboard *> orderedCustomLeaderboards,
+                                   std::unordered_map<std::string, CustomLeaderboard>);
+    };
+}
